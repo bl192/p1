@@ -20,14 +20,13 @@ public class NBody {
 	 */
 	public static double readRadius(String fname) throws FileNotFoundException  {
 		Scanner s = new Scanner(new File(fname));
-	
-		// TODO: read values at beginning of file to
-		// find the radius
+		s.nextInt();
+		double radius = s.nextDouble();
 		
 		s.close();
 		
 		// TODO: return radius read
-		return 0;	
+		return radius;	
 	}
 	
 	/**
@@ -42,10 +41,20 @@ public class NBody {
 			Scanner s = new Scanner(new File(fname));
 			
 			// TODO: read # bodies, create array, ignore radius
-			int nb = 0; // # bodies to be read
-			
+			int nb = s.nextInt(); // # bodies to be read
+			s.nextDouble();
+			CelestialBody[] readfromfile = new CelestialBody[nb];
 			for(int k=0; k < nb; k++) {
+				double myXPos = s.nextDouble();
+				double myYPos = s.nextDouble();
+				double myXVel = s.nextDouble();
+				double myYVel = s.nextDouble();
+				double myMass = s.nextDouble();
+				String myFileName = s.next();
 				
+				CelestialBody body = new CelestialBody(myXPos, myYPos,
+						myXVel, myYVel, myMass, myFileName);
+				readfromfile[k] = body;
 				// TODO: read data for each body
 				// construct new body object and add to array
 			}
@@ -53,11 +62,16 @@ public class NBody {
 			s.close();
 			
 			// TODO: return array of body objects read
-			return null;
+			return readfromfile;
 	}
+	/**
+	 * iterates through bodies to simulate movement
+	 * @param args
+	 * @throws FileNotFoundException
+	 */
 	public static void main(String[] args) throws FileNotFoundException{
-		double totalTime = 157788000.0;
-		double dt = 25000.0;
+		double totalTime = 1000000000.0;
+		double dt = 1000000.0;
 		
 		String fname= "./data/planets.txt";
 		if (args.length > 2) {
@@ -76,16 +90,31 @@ public class NBody {
 			
 			// TODO: create double arrays xforces and yforces
 			// to hold forces on each body
+			Double[] xforces = new Double[bodies.length];
+			Double[] yforces = new Double[bodies.length];
 			
 			// TODO: loop over all bodies, calculate
 			// net forces and store in xforces and yforces
+			for (int k=0; k<bodies.length; k++) {
+				CelestialBody body = bodies[k];
+				double xforce =  body.calcNetForceExertedByX(bodies);
+				double yforce = body.calcNetForceExertedByY(bodies);
+				xforces[k] = xforce;
+				yforces[k] = yforce;
+			}
 			
 			// TODO: loop over all bodies and call update
 			// with dt and corresponding xforces, yforces values
 			
+			for (int k=0; k<bodies.length; k++) {
+				bodies[k].update(dt, xforces[k], yforces[k]);
+			}
+			
 			StdDraw.picture(0,0,"images/starfield.jpg");
 			
-			// TODO: loop over all bodies and call draw on each one
+			for (CelestialBody body : bodies) {
+				body.draw();
+			}
 			
 			StdDraw.show(10);
 		}

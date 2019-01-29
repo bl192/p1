@@ -7,18 +7,31 @@
  */
 public class CelestialBody {
 
+	private double myXPos;
+	private double myYPos;
+	private double myXVel;
+	private double myYVel;
+	private double myMass;
+	private String myFileName;
+	
 	/**
-	 * Create a Body from parameters	
-	 * @param xp initial x position
-	 * @param yp initial y position
+	 * Create a body from parameters
+	 * @param xp initial x
+	 * @param yp initial y
 	 * @param xv initial x velocity
 	 * @param yv initial y velocity
-	 * @param mass of object
-	 * @param filename of image for object animation
-	 */
+	 * @param mass mass of body
+	 * @param filename for animation
+ 	 */
 	public CelestialBody(double xp, double yp, double xv,
 			             double yv, double mass, String filename){
-		// TODO: complete constructor
+		myXPos = xp;
+		myYPos = yp;
+		myXVel = xv;
+		myYVel = yv;
+		myMass = mass;
+		myFileName = filename;
+		
 	}
 
 	/**
@@ -27,37 +40,63 @@ public class CelestialBody {
 	 * @param b used to initialize this body
 	 */
 	public CelestialBody(CelestialBody b){
-		// TODO: complete constructor
+		//myXPos = b.myXPos;
+		
+		myXPos = b.myXPos;
+		myYPos = b.myYPos;
+		myXVel = b.myXVel;
+		myYVel = b.myYVel;
+		myMass = b.myMass;
+		myFileName = b.myFileName;
+			
 	}
-
+/**
+ * allows us to use getX or myXPos
+ * @return value of x
+ */
 	public double getX() {
-		// TODO: complete method
-		return 0.0;
+
+		return myXPos;
 	}
+	/**
+	 * allows us to use getY or myYPos
+	 * @return value of y
+	 */
 	public double getY() {
-		// TODO: complete method
-		return 0.0;
+		
+		return myYPos;
 	}
+	/**
+	 * allows us to use getXVel or myXVel
+	 * @return value of x velocity
+	 */
 	public double getXVel() {
-		// TODO: complete method
-		return 0.0;
+		
+		return myXVel;
 	}
 	/**
 	 * Return y-velocity of this Body.
 	 * @return value of y-velocity.
 	 */
 	public double getYVel() {
-		// TODO: complete method
-		return 0.0;
+		
+		return myYVel;
 	}
-	
+	/**
+	 * return mass of body
+	 * @return mass of body
+	 */
 	public double getMass() {
-		// TODO: complete method
-		return 0.0;
+	
+		return myMass;
 	}
+	/**
+	 * returns name
+	 * @return name for animation
+	 */
 	public String getName() {
-		// TODO: complete method
-		return "no name";
+		
+		return myFileName;
 	}
 
 	/**
@@ -66,40 +105,104 @@ public class CelestialBody {
 	 * @return distance between this body and b
 	 */
 	public double calcDistance(CelestialBody b) {
-		// TODO: complete method
-		return 0.0;
+		double x = b.myXPos - myXPos;
+		double y = b.myYPos - myYPos;
+		double squared = (x * x) + (y * y);
+		
+		return Math.sqrt(squared);
 	}
-
+/**
+ * return force between bodies
+ * @param p other body force is calculated
+ * @return force
+ */
 	public double calcForceExertedBy(CelestialBody p) {
-		// TODO: complete method
-		return 0.0;
+		double distancesquared = calcDistance(p) * calcDistance(p);
+		double g = 6.67e-11;
+		double masses = p.myMass * myMass;
+		return (g * masses) / distancesquared;
+		
 	}
-
+/**
+ * force in x direction on
+ * @param p is body exerting force
+ * @return amount of force in x direction
+ */
 	public double calcForceExertedByX(CelestialBody p) {
-		// TODO: complete method
-		return 0.0;
+		double F = calcForceExertedBy(p);
+		double dx = p.getX() - myXPos;
+		
+		return (F * dx) / calcDistance(p);
 	}
+	/**
+	 * force in y direction on
+	 * @param p is body exerting force
+	 * @return amount of force in y direction
+	 */
 	public double calcForceExertedByY(CelestialBody p) {
-		// TODO: complete method
-		return 0.0;
+		double F = calcForceExertedBy(p);
+		double dy = p.getY() - myYPos;
+		
+		return (F * dy) / calcDistance(p);
 	}
-
+/**
+ * returns net x force
+ * @param bodies with force calculated
+ * @return net x force
+ */
 	public double calcNetForceExertedByX(CelestialBody[] bodies) {
-		// TODO: complete method
-		return 0.0;
+		//cnet saves who called it in a variable called this
+		// who called me name it this = who called me
+		double xForce = 0;
+		for (CelestialBody body : bodies) {
+			if (! body.equals(this)) {
+				xForce += calcForceExertedByX(body);
+			}
+		}
+		return xForce;
 	}
 
+	/**
+	 * returns net y force
+	 * @param bodies with force calculated
+	 * @return net y force
+	 */
 	public double calcNetForceExertedByY(CelestialBody[] bodies) {
-		// TODO: complete method
-		return 0.0;
+		double yForce = 0;
+		for(CelestialBody body : bodies) {
+			if (! body.equals(this)) {
+				yForce += calcForceExertedByY(body);
+			}
+		}
+		return yForce;
 	}
 
+	/**
+	 * illustrates movement
+	 */
+	public void draw() {
+		StdDraw.picture(myXPos, myYPos, "images/"+myFileName);
+	}
+	
+	/**
+	 * updates over time
+	 * @param deltaT change in time
+	 * @param xforce calculates a
+	 * @param yforce calculates a
+	 */
 	public void update(double deltaT, 
 			           double xforce, double yforce) {
-		// TODO: complete method
-	}
+		double ax = xforce / myMass;
+		double ay = yforce / myMass;
+		double nvx = myXVel + deltaT * ax;
+		double nvy = myYVel + deltaT * ay;
+		double nx = myXPos + deltaT * nvx;
+		double ny = myYPos + deltaT * nvy;
+		myXPos = nx;
+		myYPos = ny;
+		myXVel = nvx;
+		myYVel = nvy;
 
-	public void draw() {
-		// TODO: complete method
 	}
+	
 }
